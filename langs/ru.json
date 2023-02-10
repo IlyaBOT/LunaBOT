@@ -1,0 +1,19 @@
+{
+    "lunabot": {
+        "sentences": [
+            {
+                "load": "Загружаю",
+                "self_log_info": "Cлеш-команды cинхронизированы для",
+                "boop_login": "Буп!\nВы вошли как",
+                "config_error": "[ОШИБКА] Конфигурационный файл JSON не найден!",
+                "pidortest_description": "A test of the person who used this command for homosexual orientation.",
+                "warning": "Warning",
+                "you_gay": "You're gay!",
+                "gay_on_the_server": "Attention, a gay has been detected on the server!",
+                "сongratulations": "Congratulations",
+                "not_gay": "you are natural",
+                "straight_on_the_server": "Everything is fine, the scanned person turned out to be not gay"
+            }
+        ]
+    }
+}
