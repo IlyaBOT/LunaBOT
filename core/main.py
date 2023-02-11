@@ -22,10 +22,11 @@ class DiscordClient(commands.Bot):
     async def setup_bot(self):
         init_bot_db()
         if not self.guild_settings.get_all_guild():
-            for guild in self.guilds:
-                self.guild_settings.setup_guild(guild_id=guild.id)
-
-            self.log.info("Setup guild database done!")
+            pass
+        #     for guild in self.guilds:
+        #         self.guild_settings.setup_guild(guild_id=guild.id)
+        #
+        #     self.log.info("Setup guild database done!")
 
     @tasks.loop(seconds=60.0)
     async def status(self):
@@ -59,7 +60,7 @@ class DiscordClient(commands.Bot):
             await message.add_reaction(row[2])
     
     async def on_ready(self):
-        # await self.setup_bot()
+        await self.setup_bot()
         print(f"Буп!\nВы вошли как {self.user}")
         self.status.start()
         try:
