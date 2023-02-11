@@ -2,7 +2,7 @@ import discord
 import logging
 from random import choice
 from discord.ext import commands, tasks
-from core.database import init_bot_db, RolesDatabase
+from core.database import init_bot_db, RolesDatabase, GuildSettings
 from core.settings_bot import config
 
 role_db = RolesDatabase()
@@ -14,9 +14,18 @@ class DiscordClient(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         self.log = logging.getLogger('LunaBot')
+        self.guild_settings = GuildSettings()
         super().__init__(
             command_prefix=settings["prefix"],
             intents=intents)
+
+    async def setup_bot(self):
+        init_bot_db()
+        if not self.guild_settings.get_all_guild():
+            for guild in self.guilds:
+                self.guild_settings.setup_guild(guild_id=guild.id)
+
+            self.log.info("Setup guild database done!")
 
     @tasks.loop(seconds=60.0)
     async def status(self):
@@ -37,8 +46,7 @@ class DiscordClient(commands.Bot):
         for extend in settings['extension']:
             await self.load_extension(extend)
             self.log.info(f"Load - {extend}")
-        await self.tree.sync(guild = discord.Object(id = settings["main_guild"]))
-        # await self.tree.sync(guild=discord.Object(id=617020672929169418)) # это для дебага
+        await self.tree.sync(guild=discord.Object(id=settings["main_guild"]))
         self.log.info(f"Synced slash commands for {self.user}")
 
     async def setup_emoji(self):
@@ -51,10 +59,9 @@ class DiscordClient(commands.Bot):
             await message.add_reaction(row[2])
     
     async def on_ready(self):
-        init_bot_db()
+        # await self.setup_bot()
         print(f"Буп!\nВы вошли как {self.user}")
         self.status.start()
-
         try:
             await self.setup_emoji()
         except Exception as e:
