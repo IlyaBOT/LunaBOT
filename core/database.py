@@ -3,7 +3,7 @@ import sqlite3
 
 def db_connect(func):
     def inner(*args, **kwargs):
-        with sqlite3.connect("../bot.db") as conn:
+        with sqlite3.connect("../LunaBOT/bot.db") as conn:
             res = func(*args, conn=conn, **kwargs)
             return res
 
