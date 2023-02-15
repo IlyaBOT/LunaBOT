@@ -12,8 +12,7 @@ class VoiceEvent(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-
-        if after.channel is not None and before.channel is None:
+        if after.channel is not None:
             vc_db = VcDB()
             category = None
             if after.channel.category_id is not None:
@@ -58,7 +57,7 @@ class VoiceEvent(commands.Cog):
 
                     await member.move_to(vc)
 
-        elif before.channel is not None and after.channel is None:
+        if before.channel is not None:
             vc_db = VcDB()
             voice_channel = discord.utils.get(member.guild.channels, id=before.channel.id)
             members_count = len(voice_channel.members)
