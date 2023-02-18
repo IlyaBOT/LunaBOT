@@ -22,7 +22,7 @@ class VoiceCommand(commands.Cog):
             color=discord.Color.green()
         )
         vc = await interaction.guild.create_voice_channel(name="[+] Create Voice Channel [+]")
-        await interaction.response.send_message(embed=mbed)
+        await interaction.response.send_message(embed=mbed, ephemeral=True)
         self.vc_db.vc_setup_insert(guild_id=interaction.guild.id, voice_channel_id=vc.id)
 
     @app_commands.command(name="lock", description="Open access to enter the voice channel for everyone")
@@ -30,30 +30,56 @@ class VoiceCommand(commands.Cog):
         try:
             voice = interaction.user.voice.channel
         except AttributeError:
-            return await interaction.response.send_message("You don't have a group created")
+            return await interaction.response.send_message("You don't have a group created", ephemeral=True)
         if self.vc_db.get_author_id_vc(channel_id=voice.id) == interaction.user.id:
             overwrite = voice.overwrites_for(interaction.guild.default_role)
             overwrite.connect = False
             await voice.set_permissions(interaction.guild.default_role, overwrite=overwrite)
-            await interaction.response.send_message(f"Voice channel `{voice.name}` the locked")
+            await interaction.response.send_message(f"Voice channel `{voice.name}` the locked", ephemeral=True)
             self.vc_db.update_private_vc(options=False, channel_id=voice.id)
         else:
-            await interaction.response.send_message(f"You are not authorized to use this voice room")
+            await interaction.response.send_message(f"You are not authorized to use this voice room", ephemeral=True)
 
     @app_commands.command(name="unlock", description="Close access to enter the voice channel for everyone")
     async def voice_unlock(self, interaction: discord.Interaction):
         try:
             voice = interaction.user.voice.channel
         except AttributeError:
-            return await interaction.response.send_message("You don't have a group created")
+            return await interaction.response.send_message("You don't have a group created", ephemeral=True)
         if self.vc_db.get_author_id_vc(channel_id=voice.id) == interaction.user.id:
             overwrite = voice.overwrites_for(interaction.guild.default_role)
             overwrite.connect = True
             await voice.set_permissions(interaction.guild.default_role, overwrite=overwrite)
-            await interaction.response.send_message(f"Voice channel `{voice.name}` the unlocked")
+            await interaction.response.send_message(f"Voice channel `{voice.name}` the unlocked", ephemeral=True)
             self.vc_db.update_private_vc(options=True, channel_id=voice.id)
         else:
-            await interaction.response.send_message("You are not authorized to use this voice room")
+            await interaction.response.send_message("You are not authorized to use this voice room", ephemeral=True)
+
+    @app_commands.command(name="vcname", description="Change name voice channel")
+    async def voice_name(self, interaction: discord.Interaction, name: str):
+        try:
+            voice = interaction.user.voice.channel
+        except AttributeError:
+            return await interaction.response.sand_message("You don't have a group created", ephemeral=True)
+        if self.vc_db.get_author_id_vc(channel_id=voice.id) == interaction.user.id:
+            await voice.edit(name=name)
+            self.vc_db.update_name_vc(name=name, channel_id=voice.id)
+            await interaction.response.send_message(f"Name changed: `{name}`", ephemeral=True)
+        else:
+            await interaction.response.send_message("You are not authorized to use this voice room", ephemeral=True)
+
+    @app_commands.command(name="setlimit", description="Change limit for voice channel")
+    async def voice_limit(self, interaction: discord.Interaction, limit: int):
+        try:
+            voice = interaction.user.voice.channel
+        except AttributeError:
+            return await interaction.response.sand_message("You don't have a group created", ephemeral=True)
+        if self.vc_db.get_author_id_vc(channel_id=voice.id) == interaction.user.id:
+            await voice.edit(user_limit=limit)
+            self.vc_db.update_limit_vc(limit=limit, channel_id=voice.id)
+            await interaction.response.send_message(f"Change limit user on: `{limit}`", ephemeral=True)
+        else:
+            await interaction.response.send_message("You are not authorized to use this voice room", ephemeral=True)
 
 
 async def setup(bot: commands.Bot):

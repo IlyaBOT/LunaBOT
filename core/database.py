@@ -1,4 +1,7 @@
 import sqlite3
+import logging
+
+log = logging.getLogger(f'LunaBot.core.{__name__}')
 
 
 def db_connect(func):
@@ -42,6 +45,7 @@ def init_bot_db(conn):
     #             music_channel_only BOOLEAN DEFAULT (FALSE) NOT NULL,
     #             music_channel INTEGER)""")
     conn.commit()
+    log.info("Database init")
 
 
 class RolesDatabase:
@@ -54,6 +58,7 @@ class RolesDatabase:
         c.execute('INSERT INTO role_reaction (guild_id, channel_id, message_id, emoji, role_id) VALUES (?, ?, ?, ?, ?)',
                   (guild_id, channel_id, message_id, emoji, role_id))
         conn.commit()
+        log.info("Insert: [role_reaction] commit on table")
 
     @db_connect
     def db_channel_id(self, conn):
@@ -87,6 +92,7 @@ class VcDB:
     def vc_setup_insert(self, conn, guild_id: int, voice_channel_id: int):
         c = conn.cursor()
         c.execute('INSERT INTO vc_lobbys (guild_id, vc_channel_id) VALUES (?, ?)', (guild_id, voice_channel_id))
+        log.debug(f"Setup setting for guild: {guild_id} on voice channel: {voice_channel_id}")
         conn.commit()
 
     @db_connect
@@ -105,6 +111,7 @@ class VcDB:
         c.execute("INSERT INTO custom_voice (vc_id, name_channel, created_at, created_member_id, guild_id)"
                   "VALUES (?, ?, ?, ?, ?)", (vc_id, name, created_at, created_member_id, guild_id))
         conn.commit()
+        log.debug(f"Commit new settings for user: {created_at}")
 
     @db_connect
     def get_vcdb_name(self, conn, channel_id: int, guild_id: int):
@@ -136,6 +143,7 @@ class VcDB:
                                                                                                      member_id,
                                                                                                      guild_id))
         conn.commit()
+        log.info("Update id settings voice channel")
 
     @db_connect
     def get_argument_voice(self, conn, channel_id: int):
@@ -171,6 +179,7 @@ class VcDB:
         c = conn.cursor()
         c.execute("UPDATE custom_voice SET private_voice = ? WHERE vc_id = ?", (options, channel_id))
         conn.commit()
+        log.debug(f"Set {options} settings private voice channel: {channel_id}")
 
     @db_connect
     def get_author_id_vc(self, conn, channel_id: int):
@@ -181,6 +190,20 @@ class VcDB:
             return res
         except TypeError:
             return None
+
+    @db_connect
+    def update_name_vc(self, conn, name: str, channel_id: int):
+        c = conn.cursor()
+        c.execute("UPDATE custom_voice SET name_channel = ? WHERE vc_id = ?", (name, channel_id))
+        conn.commit()
+        log.info("Set new name voice channel")
+
+    @db_connect
+    def update_limit_vc(self, conn, limit: int, channel_id: int):
+        c = conn.cursor()
+        c.execute("UPDATE custom_voice SET limit_vc = ? WHERE vc_id = ?", (limit, channel_id))
+        conn.commit()
+        log.info("Update limit settings on voice channel")
 
 
 class GuildSettings:
