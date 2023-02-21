@@ -1,6 +1,5 @@
 [![](https://img.shields.io/badge/Version-Release_2.1-brightgreen.svg?style=for-the-badge)](#bot-version)
 [![](https://img.shields.io/badge/Python-3.10-blue.svg?style=for-the-badge)](#python)
-
 [![discord.py](https://img.shields.io/badge/discord-py-blue.svg?style=for-the-badge)](https://github.com/Rapptz/discord.py)
 [![Discord server](https://discordapp.com/api/guilds/766242638202142741/embed.png)](https://discord.gg/er4WQqc)
 =======
