@@ -130,4 +130,4 @@ dmypy.json
 
 *.db
 /logs
-/.idea
+.idea/
