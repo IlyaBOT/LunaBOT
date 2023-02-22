@@ -23,7 +23,7 @@ class CustomPlayer(wavelink.Player):
 class Music(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.log = logging.getLogger('LunaBot.cogs.Music')
+        self.log = logging.getLogger(f'LunaBOT.{__name__}')
         self.channel = {}
         bot.loop.create_task(self.create_node())
 

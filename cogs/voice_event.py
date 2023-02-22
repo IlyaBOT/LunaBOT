@@ -3,7 +3,7 @@ import logging
 from core.database import VcDB
 from discord.ext import commands
 
-log = logging.getLogger(f"LunaBot.{__name__}")
+log = logging.getLogger(f"LunaBOT.{__name__}")
 
 
 class VoiceEvent(commands.Cog):
@@ -26,7 +26,8 @@ class VoiceEvent(commands.Cog):
                     log.info("Created new settings")
                     guild = member.guild
                     overwrites = {
-                        guild.default_role: discord.PermissionOverwrite(connect=False)
+                        guild.default_role: discord.PermissionOverwrite(connect=False),
+                        member: discord.PermissionOverwrite(connect=True)
                     }
                     vc = await guild.create_voice_channel(name=f"Voice Lair {member.display_name}",
                                                           category=category, overwrites=overwrites)
@@ -39,6 +40,7 @@ class VoiceEvent(commands.Cog):
                 elif not vc_arg:
                     log.info("Old settings applied")
                     guild = member.guild
+                    permission_member = discord.PermissionOverwrite(connect=True)
 
                     if not vc_data[2]:
                         permission = discord.PermissionOverwrite(connect=False)
@@ -46,7 +48,8 @@ class VoiceEvent(commands.Cog):
                         permission = discord.PermissionOverwrite(connect=True)
 
                     overwrites = {
-                        guild.default_role: permission
+                        guild.default_role: permission,
+                        member: permission_member
                     }
                     vc = await member.guild.create_voice_channel(name=f"{vc_data[0]}",
                                                                  category=category,

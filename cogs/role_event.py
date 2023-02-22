@@ -8,7 +8,7 @@ from asyncio import sleep
 class RoleEvent(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.log = logging.getLogger(f'LunaBot.cogs.{__name__}')
+        self.log = logging.getLogger(f"LunaBOT.{__name__}")
         self.role_db = RolesDatabase()
 
     @commands.Cog.listener()

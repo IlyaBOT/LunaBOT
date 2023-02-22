@@ -1,4 +1,5 @@
 import discord
+import logging
 from discord import app_commands
 from discord.ext import commands
 from core.settings_bot import config
@@ -10,6 +11,7 @@ class RoleGiver(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.settings = config()
+        self.log = logging.getLogger(f"LunaBOT.{__name__}")
         self.role_db = RolesDatabase()
 
     @app_commands.command(name="reactroleadd", description="Создаёт реакцию под сообщением для получения роли.")

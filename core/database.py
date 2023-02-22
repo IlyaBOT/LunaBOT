@@ -1,7 +1,8 @@
 import sqlite3
 import logging
 
-log = logging.getLogger(f'LunaBot.core.{__name__}')
+
+log = logging.getLogger(f'LunaBOT.{__name__}')
 
 
 def db_connect(func):
@@ -124,10 +125,11 @@ class VcDB:
             return None
 
     @db_connect
-    def delete_vc(self, conn, channel_id: int, guild_id: int):
+    def delete_vc(self, conn, member_id: int, guild_id: int):
         c = conn.cursor()
-        c.execute("DELETE FROM custom_voice WHERE guild_id = ? AND vc_id = ?", (guild_id, channel_id))
+        c.execute("DELETE FROM custom_voice WHERE guild_id = ? AND created_member_id = ?", (guild_id, member_id))
         conn.commit()
+        log.info("Delete settings voice channel")
 
     @db_connect
     def argument_voice(self, conn, disable: str, channel_id: int):
@@ -204,6 +206,13 @@ class VcDB:
         c.execute("UPDATE custom_voice SET limit_vc = ? WHERE vc_id = ?", (limit, channel_id))
         conn.commit()
         log.info("Update limit settings on voice channel")
+
+    @db_connect
+    def delete_lobby(self, conn, guild_id: int):
+        c = conn.cursor()
+        c.execute("DELETE FROM vc_lobbys WHERE guild_id = ?", (guild_id, ))
+        conn.commit()
+        log.info("Delete lobby from database")
 
 
 class GuildSettings:

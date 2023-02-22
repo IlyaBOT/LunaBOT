@@ -10,7 +10,7 @@ from discord import app_commands
 class Fun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.log = logging.getLogger(f"LunaBot.cogs.{__name__}")
+        self.log = logging.getLogger(f"LunaBOT.{__name__}")
         self.config = config()
 
     @app_commands.command(name="pidortest", description="Тест персоны, использовавшей данную команду на гомосексуальную ориентацию.")

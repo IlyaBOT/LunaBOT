@@ -13,7 +13,7 @@ class DiscordClient(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.members = True
-        self.log = logging.getLogger('LunaBot')
+        self.log = logging.getLogger(f"LunaBOT.{__name__}")
         self.guild_settings = GuildSettings()
         super().__init__(
             command_prefix=settings["prefix"],
