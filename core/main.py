@@ -5,6 +5,7 @@ from discord.ext import commands, tasks
 from core.database import init_bot_db, RolesDatabase, GuildSettings
 from core.settings_bot import config
 
+
 role_db = RolesDatabase()
 settings = config()
 
@@ -13,10 +14,12 @@ class DiscordClient(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.members = True
+        intents.message_content = True
         self.log = logging.getLogger(f"LunaBOT.{__name__}")
         self.guild_settings = GuildSettings()
         super().__init__(
-            command_prefix=settings["prefix"],
+            command_prefix=settings['prefix'],
+            owner_id=settings['is_owner'],
             intents=intents)
 
     #async def setup_bot(self): 
@@ -63,6 +66,7 @@ class DiscordClient(commands.Bot):
         #await self.setup_bot()
         print(f"Буп!\nВы вошли как {self.user}")
         self.status.start()
+        self.remove_command("help")
         try:
             await self.setup_emoji()
         except Exception as e:

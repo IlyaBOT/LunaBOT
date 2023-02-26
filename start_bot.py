@@ -1,5 +1,6 @@
 from core.settings_bot import config
 from core.main import client
+import datetime as dt
 import logging
 import os
 
@@ -12,12 +13,13 @@ if __name__ == "__main__":
     settings = config()
     log = logging.getLogger("LunaBOT")
     log.setLevel(log_level.get(settings['Logging']))
-
+    utc = dt.datetime.utcnow()
+    format_date = utc.strftime("%d-%m-%Y")
     try:
-        f_handler = logging.FileHandler(f"./logs/LunaBOT.log")
+        f_handler = logging.FileHandler(f"./logs/LunaBOT-{format_date}.log")
     except FileNotFoundError:
         os.mkdir("./logs")
-        f_handler = logging.FileHandler(f"./logs/LunaBOT.log")
+        f_handler = logging.FileHandler(f"./logs/LunaBOT{format_date}.log")
 
     c_handler = logging.StreamHandler()
     formatter1 = logging.Formatter(
