@@ -5,12 +5,16 @@ from discord import app_commands, Interaction
 from discord.ext import commands
 from discord.ext.commands import errors
 from core.settings_bot import NotDeveloperMode, AppNotIsNsfw
+from core.i18n import translate
+from core.custom import LangMessageable
 
 
 class ErrorHandlerApp(commands.Cog):
     def __init__(self, bot: commands.Bot):
         ...
         # assign the handler
+        self.send_app_embed = LangMessageable.app_send_embed
+        self.send = LangMessageable.app_mod_send
         bot.tree.on_error = self.global_app_command_error
         self.log = logging.getLogger(f"LunaBOT.{__name__}")
 
@@ -21,16 +25,17 @@ class ErrorHandlerApp(commands.Cog):
     ):
         if isinstance(error, app_commands.MissingPermissions):
             self.log.info("Missing Permissions")
-            await interaction.response.send_message("You do not have permission to use this command")
+            await self.send(interaction, "You do not have permission to use this command", ephemeral=True)
 
         elif isinstance(error, AppNotIsNsfw):
             self.log.info(f"{error}")
-            embed_error = discord.Embed(
+            await self.send_app_embed(
+                interaction,
                 title="Channel not NSFW",
                 description=f"{error}",
-                color=discord.Color.red()
+                color=discord.Colour.red(),
+                ephemeral=True
             )
-            await interaction.response.send_message(embed=embed_error, ephemeral=True)
         else:
             # disclaimer: this is an example implementation.
             self.log.error("An error occurred in the following command:", interaction.command, exc_info=error)

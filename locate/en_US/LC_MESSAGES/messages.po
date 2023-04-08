@@ -1,0 +1,402 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: LunaBOT\n"
+"POT-Creation-Date: 2023-03-05 18:45+0300\n"
+"Last-Translator: \n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+"X-Crowdin-Project: lunaBot-discord\n"
+"X-Crowdin-Language: en\n"
+"X-Crowdin-File-ID: 4\n"
+"Language: en_US\n"
+
+
+#: cogs/error_handler_app.py:26
+msgid "You do not have permission to use this command"
+msgstr ""
+
+#: cogs/error_handler_app.py:31
+msgid "Channel not NSFW"
+msgstr ""
+
+#: cogs/tools_command.py:46
+msgid "Language changed to %s"
+msgstr ""
+
+#: cogs/tools_command.py:31
+msgid "Cog `{}` reloaded"
+msgstr ""
+
+#: cogs/tools_command.py:
+msgid "✅ SUCCESS"
+msgstr ""
+
+#: cogs/tools_command.py:60
+msgid "Ping!"
+msgstr ""
+
+#: cogs/tools_command.py:
+msgid "Cog not found."
+msgstr ""
+
+#: cogs/tools_command.py:
+msgid "Cog already loaded."
+msgstr ""
+
+#: core/settings_bot.py:31
+msgid "To use these commands, enable the developer mode in the bot config"
+msgstr ""
+
+#: core/settings_bot.py:42
+msgid "This is a non-NSFW channel, you cannot use this command here"
+msgstr ""
+
+
+
+#: cogs/music.py:55 cogs/music.py:365
+msgid "Now playing:"
+msgstr ""
+
+#: cogs/music.py:56 cogs/music.py:367
+msgid "Track title"
+msgstr ""
+
+#: cogs/music.py:61 cogs/music.py:370
+msgid "Artist"
+msgstr ""
+
+#: cogs/music.py:67 cogs/music.py:381
+msgid "Length"
+msgstr ""
+
+#: cogs/music.py:73
+msgid "To extend, order more music through the `/play` command"
+msgstr ""
+
+#: cogs/music.py:75
+msgid "Queue is over.."
+msgstr ""
+
+#: cogs/music.py:95
+msgid "Connection to the voice channel"
+msgstr ""
+
+#: cogs/music.py:102
+msgid "Failed to connect..."
+msgstr ""
+
+#: cogs/music.py:109
+msgid "Bot is already connected to a voice channel"
+msgstr ""
+
+#: cogs/music.py:113
+msgid "Bot connect to the voice `%s`"
+msgstr ""
+
+#: cogs/music.py:115
+msgid "Disconnect to the voice channel"
+msgstr ""
+
+#: cogs/music.py:121 cogs/music.py:129 cogs/music.py:132 cogs/music.py:257
+#: cogs/music.py:276 cogs/music.py:297 cogs/music.py:339 cogs/music.py:358
+#: cogs/music.py:416 cogs/music.py:424
+msgid "Bot is not connected to any voice channel"
+msgstr ""
+
+#: cogs/music.py:135
+msgid "Disconnected.."
+msgstr ""
+
+#: cogs/music.py:137
+msgid "Staring play sound from URL"
+msgstr ""
+
+#: cogs/music.py:144 cogs/music.py:232 cogs/music.py:446 cogs/music.py:508
+msgid "Something went wrong while searching for this track"
+msgstr ""
+
+#: cogs/music.py:149
+msgid "No tracks found"
+msgstr ""
+
+#: cogs/music.py:157
+msgid "Select the track: "
+msgstr ""
+
+#: cogs/music.py:162
+msgid "The `/play` command cannot work with playlists, use `/playlistadd`"
+msgstr ""
+
+#: cogs/music.py:164
+msgid "Something went wrong.."
+msgstr ""
+
+#: cogs/music.py:173
+msgid "first go to the voice channel, and then order the track"
+msgstr ""
+
+#: cogs/music.py:219 cogs/music.py:465 cogs/music.py:476
+msgid "This added track in the queue"
+msgstr ""
+
+#: cogs/music.py:220 cogs/music.py:466 cogs/music.py:477
+msgid "Number of music in the queue: **%s**"
+msgstr ""
+
+#: cogs/music.py:222
+msgid "🎵 Add queue %s"
+msgstr ""
+
+#: cogs/music.py:238 cogs/music.py:488
+msgid "Playing now %s"
+msgstr ""
+
+#: cogs/music.py:240 cogs/music.py:491
+msgid "Artist:"
+msgstr ""
+
+#: cogs/music.py:241 cogs/music.py:492
+msgid "Volume player:"
+msgstr ""
+
+#: cogs/music.py:248 cogs/music.py:499
+msgid "Length:"
+msgstr ""
+
+#: cogs/music.py:251
+msgid "Stop playing sound"
+msgstr ""
+
+#: cogs/music.py:263
+msgid "You stopped the player, so you can start it again using `/play`"
+msgstr ""
+
+#: cogs/music.py:265
+msgid "Playback Stopped ⏹"
+msgstr ""
+
+#: cogs/music.py:268 cogs/music.py:287
+msgid "Nothing Is playing right now"
+msgstr ""
+
+#: cogs/music.py:270
+msgid "Paused playback"
+msgstr ""
+
+#: cogs/music.py:283
+msgid "The player is paused, to return it to work, use the `/resume` command"
+msgstr ""
+
+#: cogs/music.py:289
+msgid "Playback is Already paused"
+msgstr ""
+
+#: cogs/music.py:291
+msgid "Playback resumed"
+msgstr ""
+
+#: cogs/music.py:302 cogs/music.py:311
+msgid "Player is resume.."
+msgstr ""
+
+#: cogs/music.py:303
+msgid "Keeps playing"
+msgstr ""
+
+#: cogs/music.py:314
+msgid "Now playing: %s"
+msgstr ""
+
+#: cogs/music.py:317
+msgid "Playblack is not paused"
+msgstr ""
+
+#: cogs/music.py:322 cogs/music.py:324
+msgid "Volume should between 0 and 100"
+msgstr ""
+
+#: cogs/music.py:330
+msgid "Changed Volume to %s"
+msgstr ""
+
+#: cogs/music.py:333
+msgid "Seek to the given position in the song."
+msgstr ""
+
+#: cogs/music.py:342
+msgid "Time code invalid"
+msgstr ""
+
+#: cogs/music.py:350
+msgid "Seeked"
+msgstr ""
+
+#: cogs/music.py:352
+msgid "Now playing sound"
+msgstr ""
+
+#: cogs/music.py:382
+msgid "Volume Music"
+msgstr ""
+
+#: cogs/music.py:384
+msgid "Paused ⏸"
+msgstr ""
+
+#: cogs/music.py:386
+msgid "Playing ▶"
+msgstr ""
+
+#: cogs/music.py:387
+msgid "Player status"
+msgstr ""
+
+#: cogs/music.py:391
+msgid "Nothing is playing right now"
+msgstr ""
+
+#: cogs/music.py:393
+msgid "Skip playing music"
+msgstr ""
+
+#: cogs/music.py:399
+msgid "Nothing is playing"
+msgstr ""
+
+#: cogs/music.py:407
+msgid "Track: [%s](%s) has skip!"
+msgstr ""
+
+#: cogs/music.py:409
+msgid "User %s skipped track"
+msgstr ""
+
+#: cogs/music.py:418
+msgid "Show queue list"
+msgstr ""
+
+#: cogs/music.py:434
+msgid "Now playing %s"
+msgstr ""
+
+#: cogs/music.py:434
+msgid "Queue: "
+msgstr ""
+
+#: cogs/music.py:437
+msgid "The queue is empty"
+msgstr ""
+
+#: cogs/music.py:439
+msgid "Playing playlist on YouTube"
+msgstr ""
+
+#: cogs/music.py:452
+msgid "Go to voice chat, and then use this command again"
+msgstr ""
+
+#: cogs/music.py:468 cogs/music.py:479
+msgid "🎵 Add queue playlist %s"
+msgstr ""
+
+#: cogs/role_giver_command.py:19
+msgid "Creates a reaction under a post to get a role."
+msgstr ""
+
+
+
+
+#: cogs/role_giver_command.py:29
+msgid "✅ `[SUCCESS]` Receiving role: "
+msgstr ""
+
+#: cogs/role_giver_command.py:30
+msgid "Reaction to get a role: "
+msgstr ""
+
+#: cogs/role_giver_command.py:31
+msgid " and this message "
+msgstr ""
+
+#: cogs/role_giver_command.py:36
+msgid "Removes the role acquisition reaction."
+msgstr ""
+
+#: cogs/role_giver_command.py:41
+msgid "⚠ `[Warning]` This role no longer exists or has been removed from the database."
+msgstr ""
+
+#: cogs/role_giver_command.py:46
+msgid "✅ `[SUCCESS]` The issuing role %s was successfully deleted."
+msgstr ""
+
+
+
+#: cogs/role_giver_command.py:29
+msgid "✅ `[SUCCESS]` Receiving role: %s\nReaction to get a role: %s and this message %s"
+msgstr ""
+
+
+
+
+msgid "Warning %s, You pidor ❗️"
+msgstr ""
+
+msgid "Congratulations %s, you are straight ✅"
+msgstr ""
+
+
+msgid "Success!"
+msgstr ""
+
+msgid "A lobby has been created on your server to create voice channels ✅"
+msgstr ""
+
+msgid "You already have a lobby"
+msgstr ""
+
+msgid "You don't have a group created"
+msgstr ""
+
+msgid "Voice channel `%s` the locked"
+msgstr ""
+
+msgid "You are not authorized to use this voice room"
+msgstr ""
+
+msgid "Voice channel `%s` the unlocked"
+msgstr ""
+
+msgid "Change limit user on: `%s`"
+msgstr ""
+
+msgid "Name changed: `%s`"
+msgstr ""
+
+msgid "Voice lobby has deleted!"
+msgstr ""
+
+msgid "Settings removed"
+msgstr ""
+
+msgid "You cannot do this when you are in your private voice."
+msgstr ""
+
+msgid "This voice is closed for this member: `%s"
+msgstr ""
+
+msgid "This voice is open for this member: `%s`"
+msgstr ""
+
+msgid "Settings applied to this channel: `%s`"
+msgstr ""
+
+msgid "Sending to a special channel, disabled"
+msgstr ""
+
+msgid "Sending to a special channel, enabled"
+msgstr ""

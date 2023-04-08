@@ -8,10 +8,13 @@ import datetime as dt
 from discord.ext import commands
 from discord import app_commands
 from core.settings_bot import config
+from core.custom import LangMessageable
+from core.database import GuildSettings
 
 TIME_REGEX = r"([0-9]{1,2})[:ms](([0-9]{1,2})s?)?"
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s(" \
             r")<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’])) "
+
 
 
 class CustomPlayer(wavelink.Player):
@@ -25,7 +28,21 @@ class Music(commands.Cog):
         self.bot = bot
         self.log = logging.getLogger(f'LunaBOT.{__name__}')
         self.channel = {}
+        self.db = GuildSettings()
+        self.send = LangMessageable.mod_send
+        self.send_embed = LangMessageable.send_embed
+        self.send_app_embed = LangMessageable.app_send_embed
+        self.app_send = LangMessageable.app_mod_send
+        self.edit = LangMessageable.mod_edit
+        self.channel_id = self.db.music_channel_selector
+        self.color = discord.Colour.blurple()
         bot.loop.create_task(self.create_node())
+
+    def only_channel(self, guild_id):
+        if self.db.select_music_channel_only(guild_id=guild_id) == 1:
+            return self.db.music_channel_selector(guild_id=guild_id)
+        else:
+            return None
 
     async def create_node(self):
         await self.bot.wait_until_ready()
@@ -41,37 +58,47 @@ class Music(commands.Cog):
         channel = self.channel.get(f"{player.guild.id}")
 
         if reason == "STOPPED":
+            author = {"name": "Queue is over..", "icon": self.bot.user.avatar }
+            await self.send_embed(
+                channel,
+                color=discord.Colour.blurple(),
+                description="To extend, order more music through the `/play` command",
+                author=author
+            )
             player.queue.clear()
+            
 
         if not player.queue.is_empty:
             next_track = player.queue.get()
             await player.play(next_track)
-            fin_embed = discord.Embed(
-                color=discord.Color.blurple(),
-                timestamp=dt.datetime.utcnow()
-            )
-            fin_embed.set_author(name="Now playing:", icon_url=self.bot.user.avatar)
-            fin_embed.add_field(name="Track title",
-                                value=f"[{next_track.info['title']}]({next_track.info['uri']})",
-                                inline=False)
-            fin_embed.set_thumbnail(
-                url=f"https://img.youtube.com/vi/{next_track.info['identifier']}/maxresdefault.jpg")
-            fin_embed.add_field(name="Artist", value=next_track.info['author'], inline=True)
             t_sec = int(next_track.length)
             hour = int(t_sec / 3600)
             mins = int((t_sec % 3600) / 60)
             sec = int((t_sec % 3600) % 60)
             length = f"{hour}:{mins}:{sec:02}" if not hour == 0 else f"{mins}:{sec:02}"
-            fin_embed.add_field(name="Length", value=f"{length}", inline=True)
-            await channel.send(embed=fin_embed)
+            author = {"name": "Now playing:", "icon": self.bot.user.avatar }
+            fields = [
+                {"name": "Track title", "value": f"[{next_track.info['title']}]({next_track.info['uri']})", "inline": False},
+                {"name": "Artist", "value": next_track.info['author'], "inline": True},
+                {"name": "Length", "value": length, "inline": True}
+                
+            ]
+            await self.send_embed(
+                channel,
+                color=discord.Colour.blurple(),
+                author=author,
+                fields=fields,
+                thumbnail=f"https://img.youtube.com/vi/{next_track.info['identifier']}/maxresdefault.jpg"
+            )
         else:
             if reason == "FINISHED":
-                fin_embed = discord.Embed(color=discord.Color.blurple(),
-                                          timestamp=dt.datetime.utcnow(),
-                                          description="To extend, order more music through the `/play` command"
-                                          )
-                fin_embed.set_author(name="Queue is over..", icon_url=self.bot.user.avatar)
-                await channel.send(embed=fin_embed)
+                author = {"name": "Queue is over..", "icon": self.bot.user.avatar }
+                await self.send_embed(
+                    channel,
+                    color=discord.Colour.blurple(),
+                    description="To extend, order more music through the `/play` command",
+                    author=author
+                )
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -97,18 +124,17 @@ class Music(commands.Cog):
                 member = interaction.guild.get_member(interaction.user.id)
                 channel = member.voice.channel
             except AttributeError as e:
-                return await interaction.response.send_message("Failed to connect...", ephemeral=True)
+                return await self.app_send(interaction, "Failed to connect...", ephemeral=True)
 
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild)
 
         if player is not None:
             if player.is_connected():
-                return await interaction.response.send_message("Bot is already connected to a voice channel",
-                                                               ephemeral=True)
+                return await self.app_send(interaction, "Bot is already connected to a voice channel", ephemeral=True)
 
         await channel.connect(cls=CustomPlayer())
-        await interaction.response.send_message(f"Bot connect to the voice {channel.name}", ephemeral=True)
+        await self.app_send(interaction, "Bot connect to the voice `%s`", format=(channel.name), ephemeral=True)
 
     @app_commands.command(name="leave", description="Disconnect to the voice channel")
     async def leave_voice(self, interaction: discord.Integration):
@@ -116,61 +142,58 @@ class Music(commands.Cog):
         player = node.get_player(interaction.guild)
 
         if player is None:
-            return await interaction.response.send_message("Bot is not connected to any voice channel", ephemeral=True)
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
 
         member = interaction.guild.get_member(interaction.user.id)
         member_bot = interaction.guild.get_member(self.bot.user.id)
         channel = member.voice
 
         if channel is None:
-            return await interaction.response.send_message(
-                "You cannot use the command without being in the voice channel.", ephemeral=True)
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
         elif channel.channel.id != member_bot.voice.channel.id:
-            return await interaction.response.send_message(
-                "You cannot use the command without being in the voice channel.", ephemeral=True)
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
 
         await player.disconnect()
-        await interaction.response.send_message("Disconnected..", ephemeral=True)
+        await self.app_send(interaction, "Disconnected..", ephemeral=True)
 
     @app_commands.command(name="play", description="Staring play sound from URL")
     async def play_command(self, interaction: discord.Integration, query: str):
+        member = interaction.guild.get_member(interaction.user.id)
         try:
             search = await wavelink.YouTubeTrack.search(query=query)
         except Exception as e:
             self.log.warning(f"Exception {e}")
-            return await interaction.response.send_message("", embed=discord.Embed(
-                title="Something went wrong while searching for this track",
-                color=discord.Color.red()
-            ))
+            return await self.send_app_embed(
+                interaction,
+                description="Something went wrong while searching for this track",
+                color=discord.Colour.red()
+            )
 
         if search is None:
-            return await interaction.response.send_message("No tracks found")
+            return await self.app_send(interaction, "No tracks found", ephemeral=True)
+        
+        if member.voice is None:
+            return await self.app_send(interaction, "first go to the voice channel, and then order the track", ephemeral=True)
+
         try:
-            mbed = discord.Embed(
-                description=("\n".join(f"**{i + 1}. {t.title}**" for i, t in enumerate(search[:5]))),
-                color=discord.Color.blurple(),
-                timestamp=dt.datetime.utcnow()
-            )
             avatar = interaction.user.avatar.url
-            mbed.set_author(url=avatar, name="Select the track: ")
+            author = {"name" : "Select the track: ", "icon": avatar}
+            await self.send_app_embed(
+                interaction,
+                description=("\n".join(f"**{i + 1}. {t.title}**" for i, t in enumerate(search[:5]))),
+                color=self.color,
+                author=author
+                )
         except TypeError as e:
             self.log.warning(f"Exception {e}")
-            embed_error = discord.Embed(color=discord.Color.red(),
-                                        timestamp=dt.datetime.utcnow(),
-                                        title="The `/play` command cannot work with playlists, use `/playlistadd`"
-                                        )
-            embed_error.set_author(name="Something went wrong..", icon_url=interaction.user.avatar)
-            return await interaction.response.send_message(embed=embed_error)
-
-        await interaction.response.send_message("", embed=mbed)
+            author = {"name": "Something went wrong..", "icon": interaction.user.avatar}
+            return await self.send_app_embed(
+                interaction,
+                description="The `/play` command cannot work with playlists, use `/playlistadd`",
+                color=self.color
+            )
         msg = await interaction.original_response()
         channel = self.bot.get_channel(msg.channel.id)
-        member = interaction.guild.get_member(interaction.user.id)
-
-        if member.voice is None:
-            return await msg.edit(content=f"first go to the voice channel, and then order the track",
-                                  delete_after=15
-                                  )
 
         emojis_list = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '❌']
         emojis_dict = {
@@ -208,43 +231,55 @@ class Music(commands.Cog):
         else:
             vc: wavelink.Player = interaction.guild.voice_client
 
-        if self.channel.get(f"{interaction.guild.id}") is None:
+
+        # чета я тут намудрил 
+        if self.channel.get(f"{interaction.guild.id}") is None and self.only_channel(interaction.guild.id) is None:
             self.channel.update({f"{interaction.guild.id}": channel})
+        else:
+            channel = self.bot.get_channel(self.only_channel(interaction.guild.id))
+            self.channel.update({f"{interaction.guild.id}": channel})
+
 
         if vc.is_playing():
             vc.queue.put(item=choosed_track)
-            embed_queue = discord.Embed(color=discord.Color.blurple(),
-                                        description=f"This added track in the queue\n "
-                                                    f"Number of music in the queue: **{len(vc.queue)}**",
-                                        timestamp=dt.datetime.utcnow())
-            embed_queue.set_author(name=f"🎵 Add queue {choosed_track.title}", url=choosed_track.uri,
-                                   icon_url=interaction.user.avatar)
-            embed_queue.set_thumbnail(url=choosed_track.thumb)
-            await channel.send("", embed=embed_queue)
+            author_play = {"name": "🎵 Add queue %s", "url": choosed_track.uri, "icon": interaction.user.avatar, "format": choosed_track.title}
+            await self.send_embed(
+                channel,
+                description="This added track in the queue\nNumber of music in the queue: **%s**",
+                format={"description": len(vc.queue)},
+                color=self.color,
+                thumbnail=choosed_track.thumb,
+                author=author_play
+            )
         else:
             try:
                 await vc.play(choosed_track)
             except Exception as e:
                 self.log.error(e)
-                return await channel.send("", embed=discord.Embed(
+                return await self.send_embed(
                     title="Something went wrong while searching for this track",
                     color=discord.Color.red()
-                ))
+                )
 
-            embed_play = discord.Embed(color=discord.Color.blurple(), timestamp=dt.datetime.utcnow())
-            embed_play.set_thumbnail(url=choosed_track.thumb)
-            embed_play.set_author(name=f"Playing now {choosed_track}", url=choosed_track.uri,
-                                  icon_url=interaction.user.avatar)
-            embed_play.add_field(name="Artist:", value=f"{choosed_track.author}", inline=False)
-            embed_play.add_field(name="Volume player:", value=f"{vc.volume} %")
+
             t_sec = int(choosed_track.length)
-            print(t_sec)
             hour = int(t_sec / 3600)
             mins = int((t_sec % 3600) / 60)
             sec = int((t_sec % 3600) % 60)
             length = f"{hour}:{mins}:{sec:02}" if not hour == 0 else f"{mins}:{sec:02}"
-            embed_play.add_field(name="Length:", value=f"{length}")
-            await channel.send("", embed=embed_play)
+            author = {"name": "Now playing: %s", "icon": self.bot.user.avatar, "url": choosed_track.uri, "icon": interaction.user.avatar, "format": choosed_track.title}
+            fields = [
+                {"name": "Artist:", "value": choosed_track.author, "inline": False},
+                {"name": "Volume player:", "value": vc.volume, "inline": True},
+                {"name": "Length", "value": length, "inline": True}   
+            ]
+            await self.send_embed(
+                channel,
+                color=self.color,
+                author=author,
+                fields=fields,
+                thumbnail=choosed_track.thumb
+            )
 
     @app_commands.command(name="stop", description="Stop playing sound")
     async def stop_command(self, interaction: discord.Integration):
@@ -252,18 +287,20 @@ class Music(commands.Cog):
         player = node.get_player(interaction.guild)
 
         if player is None:
-            return await interaction.response.send_message("Bot is not connected to any voice channel", ephemeral=True)
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
 
         if player.is_playing:
             await player.stop()
-            embed = discord.Embed(color=discord.Colour.blurple(),
-                                  timestamp=dt.datetime.utcnow(),
-                                  description="You stopped the player, so you can start it again using `/play`"
-                                  )
-            embed.set_author(name="Playback Stopped ⏹", icon_url=interaction.user.avatar)
-            await interaction.response.send_message("", embed=embed)
+            author = {"name": "Playback Stopped ⏹", "icon": interaction.user.avatar}
+            await self.send_app_embed(
+                interaction,
+                description="You stopped the player, so you can start it again using `/play`",
+                color=self.color,
+                author=author,
+                ephemeral=True
+            )
         else:
-            return await interaction.response.send_message("Nothing Is playing right now", ephemeral=True)
+            return await self.app_send(interaction, "Nothing Is playing right now", ephemeral=True)
 
     @app_commands.command(name="pause", description="Paused playback")
     async def pause_command(self, interaction: discord.Integration):
@@ -271,20 +308,23 @@ class Music(commands.Cog):
         player = node.get_player(interaction.guild)
 
         if player is None:
-            return await interaction.response.send_message("Bot is not connected to any voice channel", ephemeral=True)
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
 
         if not player.is_paused():
             if player.is_playing():
                 await player.pause()
-                embed = discord.Embed(color=discord.Color.blurple(),
-                                      timestamp=dt.datetime.utcnow(),
-                                      description="The player is paused, to return it to work, use the `/resume` command")
-                embed.set_author(name="Playback Paused ⏸", icon_url=interaction.user.avatar)
-                await interaction.response.send_message("", embed=embed)
+                author = {"name": "Playback Paused ⏸", "icon": interaction.user.avatar}
+                await self.send_app_embed(
+                    interaction,
+                    description="The player is paused, to return it to work, use the `/resume` command",
+                    color=self.color,
+                    author=author,
+                    ephemeral=True
+                )
             else:
-                return await interaction.response.send_message("Nothing Is playing right now", ephemeral=True)
+                return await self.app_send(interaction, "Nothing Is playing right now" , ephemeral=True)
         else:
-            return await interaction.response.send_message("Playback is Already paused", ephemeral=True)
+            return await self.app_send(interaction, "Playback is Already paused", ephemeral=True)
 
     @app_commands.command(name="resume", description="Playback resumed")
     async def resume_command(self, interaction: discord.Integration):
@@ -292,41 +332,52 @@ class Music(commands.Cog):
         player = node.get_player(interaction.guild)
 
         if player is None:
-            return await interaction.response.send_message("Bot is not connected to any voice channel", ephemeral=True)
-
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
         if player.is_paused():
             await player.resume()
-            embed = discord.Embed(color=discord.Color.blurple(),
-                                  description="Player is resume..", timestamp=dt.datetime.utcnow())
-            embed.set_author(name=f"Keeps playing", icon_url=interaction.user.avatar)
-            return await interaction.response.send_message("", embed=embed)
+            author = {"name": "Keeps playing", "icon": interaction.user.avatar}
+            return await self.send_app_embed(
+                interaction,
+                description="Player is resume..",
+                color=self.color,
+                author=author,
+                ephemeral=True
+            )
+
         else:
             if not len(player.queue) == 0:
                 track: wavelink.track = player.queue[0]
                 await player.play(track)
-                ebed = discord.Embed(
-                    color=discord.Color.blurple(),
+                author = {"name": "Keeps playing", "icon": interaction.user.avatar}
+                return await self.send_app_embed(
+                    interaction,
                     description="Player is resume..",
-                    timestamp=dt.datetime.utcnow()
+                    color=self.color,
+                    author=author,
+                    ephemeral=True
                 )
-                ebed.set_author(name=f"Now playing: {track.title}", icon_url=interaction.user.avatar)
-                return await interaction.response.send_message("", embed=ebed)
             else:
-                return await interaction.response.send_message("Playblack is not paused", ephemeral=True)
+                return await self.app_send(interaction, "Playblack is not paused", ephemeral=True)
 
     @app_commands.command(name="volume", description="Playback volume")
     async def volume_command(self, interaction: discord.Integration, to: int):
         if to > 100:
-            return await interaction.response.send_message("Volume should between 0 and 100")
+            return await self.app_send(interaction, "Volume should between 0 and 100", ephemeral=True)
         elif to < 1:
-            return await interaction.response.send_message("Volume should between 0 and 100")
+            return await self.app_send(interaction, "Volume should between 0 and 100", ephemeral=True)
 
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild)
 
         await player.set_volume(to)
-        embed = discord.Embed(title=f"Changed Volume to {to}", color=discord.Color.blurple())
-        await interaction.response.send_message("", embed=embed)
+        await self.send_app_embed(
+            interaction,
+            title="Changed Volume to %s",
+            format={"title": to},
+            color=self.color,
+            ephemeral=True
+        )
+
 
     @app_commands.command(name="seek", description="Seek to the given position in the song.")
     async def seek_command(self, interaction: discord.Integration, seek: str):
@@ -334,10 +385,10 @@ class Music(commands.Cog):
         player = node.get_player(interaction.guild)
 
         if player is None:
-            return await interaction.response.send_message("Bot is not connected to any voice channel", ephemeral=True)
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
 
         if not (match := re.match(TIME_REGEX, seek)):
-            return await interaction.response.send_message("Time code invalid", ephemeral=True)
+            return await self.app_send(interaction, "Time code invalid", ephemeral=True)
 
         if match.group(3):
             secs = (int(match.group(1)) * 60) + (int(match.group(3)))
@@ -345,7 +396,7 @@ class Music(commands.Cog):
             secs = int(match.group(1))
 
         await player.seek(secs * 1000)
-        await interaction.response.send_message("Seeked", ephemeral=True)
+        await self.app_send(interaction, "Seeked", ephemeral=True)
 
     @app_commands.command(name="nowplaying", description="Now playing sound")
     async def now_play_command(self, interaction: discord.Integration):
@@ -353,65 +404,103 @@ class Music(commands.Cog):
         player = node.get_player(interaction.guild)
 
         if player is None:
-            return await interaction.response.send_message("Bot is not connected to any voice channel")
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
 
         if player.is_playing():
-            mbed = discord.Embed(
-                color=discord.Colour.blurple(),
-                timestamp=dt.datetime.utcnow()
-            )
-            mbed.set_author(name="Now playing:", icon_url=interaction.user.avatar)
-            print(f"{player.track.info}")
-            mbed.add_field(name="Track title", value=f"[{player.track.info['title']}]({player.track.info['uri']})",
-                           inline=False)
-            mbed.set_thumbnail(url=f"https://img.youtube.com/vi/{player.track.info['identifier']}/maxresdefault.jpg")
-            mbed.add_field(name="Artist", value=player.track.info['author'], inline=True)
             t_sec = int(player.track.length)
             hour = int(t_sec / 3600)
             mins = int((t_sec % 3600) / 60)
             sec = int((t_sec % 3600) % 60)
             length = f"{hour}:{mins}:{sec:02}" if not hour == 0 else f"{mins}:{sec:02}"
+
             pos_sec = int(player.position)
             hour_pos = int(pos_sec / 3600)
             mins_pos = int((pos_sec % 3600) / 60)
             sec_pos = int((pos_sec % 3600) % 60)
             position = f"{hour_pos}:{mins_pos}:{sec_pos:02}" if not hour == 0 else f"{mins_pos}:{sec_pos:02}"
-            mbed.add_field(name="Length", value=f"{length}/{position}", inline=True)
-            mbed.add_field(name="Volume Music", value=f"{player.volume}%", inline=True)
+
             if player.is_paused():
                 text_paused = "Paused ⏸"
             else:
                 text_paused = "Playing ▶"
-            mbed.add_field(name="Player status", value=text_paused)
 
-            return await interaction.response.send_message(embed=mbed)
+            author = {"name": "Now playing:", "icon": interaction.user.avatar}
+
+            fields = [
+                {"name": "Track title", "value": f"[{player.track.info['title']}]({player.track.info['uri']})", "inline": False},
+                {"name": "Artist", "value": player.track.info['author'], "inline": True},
+                {"name": "Length", "value": f"{length}/{position}", "inline": True},
+                {"name": "Volume Music", "value": f"{player.volume}%", "inline": True},
+                {"name": "Player status", "value": text_paused, "inline": False}
+            ]
+
+            await self.send_app_embed(
+                interaction,
+                color=self.color,
+                author=author,
+                fields=fields,
+                thumbnail=f"https://img.youtube.com/vi/{player.track.info['identifier']}/maxresdefault.jpg"
+            )
         else:
-            return await interaction.response.send_message("Nothing is playing right now", ephemeral=True)
+            return await self.app_send(interaction, "Nothing is playing right now", ephemeral=True)
 
     @app_commands.command(name="skip", description="Skip playing music")
     async def skip_command(self, interaction: discord.Integration):
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild)
+        channel_only = self.bot.get_channel(self.only_channel(interaction.guild.id))
+        
         if player:
+            format_title = (player.track.info['title'], player.track.info['uri'])
+            author_format = (interaction.user.display_name)
+            author = {"name": "User %s skipped track", "icon": interaction.user.avatar, "format": author_format}
+
             if not player.is_playing():
-                return await interaction.response.send_message("Nothing is playing", ephemeral=True)
+                return await self.app_send(interaction, "Nothing is playing", ephemeral=True)
+            
             if player.queue.is_empty:
+                if channel_only is not None:
+                    await self.send_embed(
+                        channel_only,
+                        description="Track: [%s](%s) has skip!",
+                        format={"description": format_title},
+                        author=author,
+                        color=self.color
+                    )
+                else:
+                    await self.send_app_embed(
+                        interaction,
+                        description="Track: [%s](%s) has skip!",
+                        format={"description": format_title},
+                        author=author,
+                        color=self.color
+                    )
                 return await player.stop()
 
-            await player.seek(player.track.length * 1000)
 
-            mbed = discord.Embed(color=discord.Colour.blurple(),
-                                 timestamp=dt.datetime.utcnow(),
-                                 description=f"Track: [{player.track.info['title']}]({player.track.info['uri']}) has skip!"
-                                 )
-            mbed.set_author(name=f"User {interaction.user.display_name} skipped track",
-                            icon_url=interaction.user.avatar)
+            if channel_only is not None:
+                await self.send_embed(
+                    channel_only,
+                    description="Track: [%s](%s) has skip!",
+                    format={"description": format_title},
+                    author=author,
+                    color=self.color
+                )
+            else:
+                await self.send_app_embed(
+                    interaction,
+                    description="Track: [%s](%s) has skip!",
+                    format={"description": format_title},
+                    author=author,
+                    color=self.color
+                )
 
-            await interaction.response.send_message(embed=mbed)
             if player.is_paused():
                 await player.resume()
+
+            await player.seek(player.track.length * 1000)
         else:
-            return await interaction.response.send_message("Bot is not connected to any voice channel")
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
 
     @app_commands.command(name="queue", description="Show queue list")
     async def queue_command(self, interaction: discord.Integration):
@@ -419,20 +508,19 @@ class Music(commands.Cog):
         player = node.get_player(interaction.guild)
 
         if player is None:
-            return await interaction.response.send_message("Bot is not connected to any voice channel")
+            return await self.app_send(interaction, "Bot is not connected to any voice channel", ephemeral=True)
 
         if not player.queue.is_empty:
             queue_list = player.queue
-            mbed = discord.Embed(
+            author = {"name": "Now playing %s" if player.is_playing() else "Queue: ", "icon": interaction.user.avatar, "format": player.track}
+            return await self.send_app_embed(
+                interaction,
+                color=self.color,
                 description="\n".join(f"**{i + 1}. {track}**" for i, track in enumerate(queue_list)),
-                color=discord.Color.blurple(),
-                timestamp=dt.datetime.utcnow()
+                author=author
             )
-            mbed.set_author(icon_url=interaction.user.avatar,
-                            name=f"Now playing {player.track}" if player.is_playing() else "Queue: ")
-            return await interaction.response.send_message(embed=mbed)
         else:
-            return await interaction.response.send_message("The queue is empty", ephemeral=True)
+            return await self.app_send(interaction, "The queue is empty", ephemeral=True)
 
     @app_commands.command(name="playlistadd", description="Playing playlist on YouTube")
     async def playlist_play_command(self, interaction: discord.Integration, playlist: str):
@@ -440,14 +528,15 @@ class Music(commands.Cog):
             search_playlist = await wavelink.YouTubeTrack.search(query=playlist)
         except Exception as e:
             self.log.warning(f"Exception {e}")
-            return await interaction.response.send_message("", embed=discord.Embed(
+            return await self.send_app_embed(
+                interaction,
                 title="Something went wrong while searching for this track",
                 color=discord.Color.red()
-            ))
+            )
         member = interaction.guild.get_member(interaction.user.id)
 
         if member.voice is None:
-            return await interaction.response.send_message("Go to voice chat, and then use this command again", ephemeral=True)
+            return await self.app_send(interaction, "Go to voice chat, and then use this command again", ephemeral=True)
 
         if not interaction.guild.voice_client:
             custom_player = CustomPlayer()
@@ -458,54 +547,83 @@ class Music(commands.Cog):
         for tracks in search_playlist.tracks:
             vc.queue.put(item=tracks)
 
+        
         if vc.is_playing():
-            embed_queue = discord.Embed(color=discord.Color.blurple(),
-                                        description=f"This added track in the queue\n "
-                                                    f"Number of music in the queue: **{len(vc.queue)}**",
-                                        timestamp=dt.datetime.utcnow())
-            embed_queue.set_author(name=f"🎵 Add queue playlist {search_playlist.name}", url=playlist,
-                                   icon_url=interaction.user.avatar)
-            embed_queue.set_thumbnail(url=search_playlist.tracks[0].thumb)
-            await interaction.response.send_message("", embed=embed_queue)
+            author_play = {"name": "🎵 Add queue %s", "url": search_playlist.uri, "icon": interaction.user.avatar, "format": search_playlist.title}
+            await self.send_app_embed(
+                interaction,
+                description="This added track in the queue\nNumber of music in the queue: **%s**",
+                format={"description": len(vc.queue)},
+                color=self.color,
+                thumbnail=search_playlist.thumb,
+                author=author_play
+            )
         else:
             try:
                 await vc.play(vc.queue.get())
-                embed_queue = discord.Embed(color=discord.Color.blurple(),
-                                            description=f"This added track in the queue\n "
-                                                        f"Number of music in the queue: **{len(vc.queue)}**",
-                                            timestamp=dt.datetime.utcnow())
-                embed_queue.set_author(name=f"🎵 Add queue playlist {search_playlist.name}", url=playlist,
-                                       icon_url=interaction.user.avatar)
-                embed_queue.set_thumbnail(url=search_playlist.tracks[0].thumb)
-                await interaction.response.send_message("", embed=embed_queue)
-                msg = await interaction.original_response()
-                channel = self.bot.get_channel(msg.channel.id)
+                author_q = {"name": "🎵 Add queue playlist %s", "url": playlist, "icon": interaction.user.avatar, "format": search_playlist.name}
+                await self.send_app_embed(
+                    interaction,
+                    description="This added track in the queue\nNumber of music in the queue: **%s**",
+                    thumbnail=search_playlist.tracks[0].thumb,
+                    color=self.color,
+                    author=author_q,
+                    ephemeral=True
+                )
 
-                embed_play = discord.Embed(color=discord.Color.blurple(), timestamp=dt.datetime.utcnow())
-                embed_play.set_thumbnail(url=search_playlist.tracks[0].thumb)
-                embed_play.set_author(name=f"Playing now {search_playlist.tracks[0].title}",
-                                      url=search_playlist.tracks[0].uri,
-                                      icon_url=interaction.user.avatar)
-                embed_play.add_field(name="Artist:", value=f"{search_playlist.tracks[0].author}", inline=False)
-                embed_play.add_field(name="Volume player:", value=f"{vc.volume} %")
+                msg = await interaction.original_response()
+
+                if self.only_channel(interaction.guild.id) is not None:
+                    channel = self.db.music_channel_selector(guild_id=interaction.guild.id)
+                else:
+                    channel = self.bot.get_channel(msg.channel.id)
+
                 t_sec = int(search_playlist.tracks[0].length)
-                print(t_sec)
                 hour = int(t_sec / 3600)
                 mins = int((t_sec % 3600) / 60)
                 sec = int((t_sec % 3600) % 60)
                 length = f"{hour}:{mins}:{sec:02}" if not hour == 0 else f"{mins}:{sec:02}"
-                embed_play.add_field(name="Length:", value=f"{length}")
-                await channel.send(embed=embed_play)
+                author = {"name": "Playing now %s", "icon": self.bot.user.avatar, "format": search_playlist.tracks[0].title, "url": search_playlist.tracks[0].uri}
+                fields = [
+                    {"name": "Artist:", "value": f"{search_playlist.tracks[0].author}", "inline": False},
+                    {"name": "Volume player:", "value": "{vc.volume} %", "inline": True},
+                    {"name": "Length", "value": length, "inline": True},
+                
+                ]
+                await self.send_embed(
+                    channel,
+                    color=self.color,
+                    thumbnail=search_playlist.tracks[0].thumb,
+                    author=author,
+                    fields=fields
+                )
 
                 if self.channel.get(f"{interaction.guild.id}") is None:
                     self.channel.update({f"{interaction.guild.id}": channel})
 
             except Exception as e:
                 self.log.error(e)
-                return await interaction.response.send_message("", embed=discord.Embed(
-                    title="Something went wrong while searching for this track",
+                return await self.send_app_embed(
+                    interaction,
+                    description="Something went wrong while searching for this track",
                     color=discord.Color.red()
-                ))
+                )
+            
+    @app_commands.command(name="music_set_channel", description="Sets the parameters where to send a message from the music functionality")
+    async def m_set_channel(self, interaction: discord.Integration, channel: discord.TextChannel):
+        await self.app_send(interaction, "Settings applied to this channel: `%s`", format=(channel.name))
+        self.db.music_channel_update(guild_id=interaction.guild.id, channel_id=channel.id)
+
+    @app_commands.command(name="music_channel_only", description="Enable sending messages to a special channel")
+    async def m_channel_only(self, interaction: discord.Integration):
+        guild = interaction.guild.id
+        if self.db.select_music_channel_only(guild_id=guild) == 0:
+            self.db.update_music_channel_only(guild_id=guild, bool=True)
+            await self.app_send(interaction, "Sending to a special channel, enabled")
+        elif self.db.select_music_channel_only(guild_id=guild) == 1:
+            self.db.update_music_channel_only(guild_id=guild, bool=False)
+            await self.app_send(interaction, "Sending to a special channel, disabled")
+
 
 
 async def setup(bot: commands.Bot):

@@ -1,0 +1,380 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: LunaBOT\n"
+"POT-Creation-Date: 2023-03-05 18:45+0300\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+"X-Crowdin-Project: lunaBot-discord\n"
+"X-Crowdin-Language: ru\n"
+"X-Crowdin-File-ID: 4\n"
+"Language: ru_RU\n"
+
+
+#: cogs/error_handler_app.py:26
+msgid "You do not have permission to use this command"
+msgstr "У вас нет разрешения на использование этой команды"
+
+#: cogs/error_handler_app.py:31
+msgid "Channel not NSFW"
+msgstr "Канал не NSFW"
+
+
+#: cogs/tools_command.py:46
+msgid "Language changed to %s"
+msgstr "Язык был изменнён на %s"
+
+#: cogs/tools_command.py:31
+msgid "Cog `%s` reloaded"
+msgstr "Ког `%s` перезагружен"
+
+
+#: cogs/tools_command.py:
+msgid "✅ SUCCESS"
+msgstr "✅ УСПЕХ"
+
+#: cogs/tools_command.py:60
+msgid "Ping!"
+msgstr "Пинг"
+
+#: cogs/tools_command.py:
+msgid "Cog not found."
+msgstr "Ког не найден"
+
+#: cogs/tools_command.py:
+msgid "Cog already loaded."
+msgstr "Ког не перезагружен"
+
+#: core/settings_bot.py:31
+msgid "To use these commands, enable the developer mode in the bot config"
+msgstr "Для использования этих команд включите режим разработчика в конфиге бота"
+
+#: core/settings_bot.py:42
+msgid "This is a non-NSFW channel, you cannot use this command here"
+msgstr "Это канал, не относящийся к NSFW, здесь нельзя использовать эту команду."
+
+#: cogs/music.py:55 cogs/music.py:365
+msgid "Now playing:"
+msgstr "Сейчас играет:"
+
+#: cogs/music.py:56 cogs/music.py:367
+msgid "Track title"
+msgstr "Название трека"
+
+#: cogs/music.py:61 cogs/music.py:370
+msgid "Artist"
+msgstr "Артист"
+
+#: cogs/music.py:67 cogs/music.py:381
+msgid "Length"
+msgstr "Длина трека"
+
+#: cogs/music.py:73
+msgid "To extend, order more music through the `/play` command"
+msgstr "Чтобы продлить, вы можите воспользоваться командой `/play`"
+
+#: cogs/music.py:75
+msgid "Queue is over.."
+msgstr "Очередь окончена.."
+
+#: cogs/music.py:95
+msgid "Connection to the voice channel"
+msgstr "Подключение к голосовому каналу"
+
+#: cogs/music.py:102
+msgid "Failed to connect..."
+msgstr "Не удалось подключить..."
+
+#: cogs/music.py:109
+msgid "Bot is already connected to a voice channel"
+msgstr "Бот уже подключен к голосовому каналу"
+
+#: cogs/music.py:113
+msgid "Bot connect to the voice `%s`"
+msgstr "Бот подключается к голосу `%s`"
+
+#: cogs/music.py:115
+msgid "Disconnect to the voice channel"
+msgstr "Отключиться от голосового канала"
+
+#: cogs/music.py:121 cogs/music.py:129 cogs/music.py:132 cogs/music.py:257
+#: cogs/music.py:276 cogs/music.py:297 cogs/music.py:339 cogs/music.py:358
+#: cogs/music.py:416 cogs/music.py:424
+msgid "Bot is not connected to any voice channel"
+msgstr "Бот не подключен ни к одному голосовому каналу"
+
+#: cogs/music.py:135
+msgid "Disconnected.."
+msgstr "Отключено"
+
+#: cogs/music.py:137
+msgid "Staring play sound from URL"
+msgstr "Старт воспроизведения звука с URL"
+
+#: cogs/music.py:144 cogs/music.py:232 cogs/music.py:446 cogs/music.py:508
+msgid "Something went wrong while searching for this track"
+msgstr "Что-то пошло не так при поиске этого трека"
+
+#: cogs/music.py:149
+msgid "No tracks found"
+msgstr "Треки не найдены"
+
+#: cogs/music.py:157
+msgid "Select the track: "
+msgstr "Выберите трек:"
+
+#: cogs/music.py:162
+msgid "The `/play` command cannot work with playlists, use `/playlistadd`"
+msgstr "Команда `/play` не может работать со воспроизведением плейлистов, используйте для этого `/playlistadd`"
+
+#: cogs/music.py:164
+msgid "Something went wrong.."
+msgstr "Что-то пошло не так.."
+
+#: cogs/music.py:173
+msgid "first go to the voice channel, and then order the track"
+msgstr "сначала зайдите в голосовой канал, а потом заказывайте трек"
+
+#: cogs/music.py:219 cogs/music.py:465 cogs/music.py:476
+msgid "This added track in the queue\nNumber of music in the queue: **%s**"
+msgstr "Данный трек добавлен в очередь\nКоличество музыки в очереди: **%s**"
+
+#: cogs/music.py:222
+msgid "🎵 Add queue %s"
+msgstr "🎵 Добавлен в очередь %s"
+
+#: cogs/music.py:238 cogs/music.py:488
+msgid "Playing now %s"
+msgstr "Играет сейчас %s"
+
+#: cogs/music.py:240 cogs/music.py:491
+msgid "Artist:"
+msgstr "Артист:"
+
+#: cogs/music.py:241 cogs/music.py:492
+msgid "Volume player:"
+msgstr "Громкость плеера:"
+
+#: cogs/music.py:248 cogs/music.py:499
+msgid "Length:"
+msgstr "Длина трека:"
+
+#: cogs/music.py:251
+msgid "Stop playing sound"
+msgstr "Проигрование трека музыки остановлена"
+
+#: cogs/music.py:263
+msgid "You stopped the player, so you can start it again using `/play`"
+msgstr "Вы остановили проигрыватель, чтобы снова запустить его с помощью `/play`, либо `/playlistadd`"
+
+#: cogs/music.py:265
+msgid "Playback Stopped ⏹"
+msgstr "Воспроизведение остановлено ⏹"
+
+#: cogs/music.py:268 cogs/music.py:287
+msgid "Nothing Is playing right now"
+msgstr "Сейчас ничего не воспроизводится"
+
+#: cogs/music.py:270
+msgid "Paused playback"
+msgstr "Воспроизведение на паузе"
+
+#: cogs/music.py:283
+msgid "The player is paused, to return it to work, use the `/resume` command"
+msgstr "Плеер поставлен на паузу, чтобы вернуть его в работу используйте команду `/resume`"
+
+#: cogs/music.py:289
+msgid "Playback is Already paused"
+msgstr "Воспроизведение уже на паузе"
+
+msgid "Playback Paused ⏸"
+msgstr "Плеер на паузе"
+
+#: cogs/music.py:291
+msgid "Playback resumed"
+msgstr "Воспроизведение возобновлено"
+
+#: cogs/music.py:302 cogs/music.py:311
+msgid "Player is resume.."
+msgstr "Плеер возобновил свою работу.."
+
+#: cogs/music.py:303
+msgid "Keeps playing"
+msgstr "Продолжает играть ▶"
+
+#: cogs/music.py:314
+msgid "Now playing: %s"
+msgstr "Сейчас играет: %s"
+
+#: cogs/music.py:317
+msgid "Playblack is not paused"
+msgstr "Воспроизведение не приостановлено"
+
+#: cogs/music.py:322 cogs/music.py:324
+msgid "Volume should between 0 and 100"
+msgstr "Громкость должна быть между 0 и 100"
+
+#: cogs/music.py:330
+msgid "Changed Volume to %s"
+msgstr "Громкость изменена на %s"
+
+#: cogs/music.py:333
+msgid "Seek to the given position in the song."
+msgstr "Ищите заданную позицию в песне"
+
+#: cogs/music.py:342
+msgid "Time code invalid"
+msgstr "Неверный тайм код"
+
+#: cogs/music.py:350
+msgid "Seeked"
+msgstr "Найден"
+
+#: cogs/music.py:352
+msgid "Now playing sound"
+msgstr "Сейчас играет трек"
+
+#: cogs/music.py:382
+msgid "Volume Music"
+msgstr "Громкость музыки"
+
+#: cogs/music.py:384
+msgid "Paused ⏸"
+msgstr "На паузе ⏸"
+
+#: cogs/music.py:386
+msgid "Playing ▶"
+msgstr "Играет ▶"
+
+#: cogs/music.py:387
+msgid "Player status"
+msgstr "Статус плеера"
+
+#: cogs/music.py:391
+msgid "Nothing is playing right now"
+msgstr "Сейчас ничего не воспроизводится"
+
+#: cogs/music.py:393
+msgid "Skip playing music"
+msgstr "Пропустить музыку"
+
+#: cogs/music.py:399
+msgid "Nothing is playing"
+msgstr "Ничего не играет"
+
+#: cogs/music.py:407
+msgid "Track: [%s](%s) has skip!"
+msgstr "Данный трек был [%s](%s) пропущен!"
+
+#: cogs/music.py:409
+msgid "User %s skipped track"
+msgstr "Пользователь %s пропустил трек"
+
+#: cogs/music.py:418
+msgid "Show queue list"
+msgstr "Показать список очередей"
+
+#: cogs/music.py:434
+msgid "Now playing %s"
+msgstr "Сейчас играет: %s"
+
+#: cogs/music.py:434
+msgid "Queue: "
+msgstr "Очередь: "
+
+#: cogs/music.py:437
+msgid "The queue is empty"
+msgstr "Очередь пуста"
+
+#: cogs/music.py:439
+msgid "Playing playlist on YouTube"
+msgstr "Воспроизведение плейлиста на YouTube"
+
+#: cogs/music.py:452
+msgid "Go to voice chat, and then use this command again"
+msgstr "Перейдите в голосовой чат, а затем снова используйте эту команду."
+
+#: cogs/music.py:468 cogs/music.py:479
+msgid "🎵 Add queue playlist %s"
+msgstr "Данный плейлист добавлен в очередь "
+
+#: cogs/role_giver_command.py:19
+msgid "Creates a reaction under a post to get a role."
+msgstr "Создает реакцию под постом, чтобы получить роль."
+
+
+
+
+#: cogs/role_giver_command.py:29
+msgid "✅ `[SUCCESS]` Receiving role: %s\nReaction to get a role: %s and this message %s"
+msgstr "✅ `[УСПЕХ]` Принимающая роль: %s\nРеакция на получение роли: %s и это сообщени %s"
+
+
+#: cogs/role_giver_command.py:41
+msgid "⚠ `[Warning]` This role no longer exists or has been removed from the database."
+msgstr "⚠ `[Предупреждение]` Эта роль больше не существует или была удалена из базы данных."
+
+#: cogs/role_giver_command.py:46
+msgid "✅ `[SUCCESS]` The issuing role %s was successfully deleted."
+msgstr "✅ `[УСПЕХ]` Выдающая роль %s успешно удалена."
+
+
+msgid "Warning %s, You pidor ❗️"
+msgstr "Внимание %s, Вы пидор ❗️"
+
+msgid "Congratulations %s, you are straight ✅"
+msgstr "Поздравляем %s, Вы натурал ✅"
+
+
+msgid "Success!"
+msgstr "Упех!"
+
+msgid "A lobby has been created on your server to create voice channels ✅"
+msgstr "На вашем сервере создано лобби для создания голосовых каналов ✅"
+
+msgid "You already have a lobby"
+msgstr "У вас уже есть лобби"
+
+
+msgid "You are not authorized to use this voice room"
+msgstr "У вас нет прав на использование этой голосовой комнаты"
+
+msgid "Voice channel `%s` the unlocked"
+msgstr "Голосовой канал `%s` разблокирован"
+
+msgid "Change limit user on: `%s`"
+msgstr "Изменить лимит пользователей на: `%s"
+
+msgid "Name changed: `%s`"
+msgstr "Имя изменено на: `%s`"
+
+msgid "Voice lobby has deleted!"
+msgstr "Голосовое лобби удалено!"
+
+msgid "Settings removed"
+msgstr "Настройки удалены"
+
+msgid "You cannot do this when you are in your private voice."
+msgstr "Вы не можете сделать это, когда вы находитесь в своем приватном голосе"
+
+msgid "You don't have a group created"
+msgstr "У вас не создана группа"
+
+msgid "This voice is closed for this member: `%s`"
+msgstr "Этот голос закрыт для этого участника: `%s"
+
+msgid "This voice is open for this member: `%s`"
+msgstr "Этот голос открыт для этого участника: `%s`"
+
+msgid "Settings applied to this channel: `%s`"
+msgstr "Настройки применины к этому каналу: `%s`"
+
+msgid "Sending to a special channel, disabled"
+msgstr "Отправка в спецальный канал, выключена"
+
+msgid "Sending to a special channel, enabled"
+msgstr "Отправка на специальный канал, включена"

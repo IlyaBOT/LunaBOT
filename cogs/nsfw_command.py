@@ -5,6 +5,7 @@ import datetime as dt
 from discord import app_commands
 from discord.ext import commands
 from core.e621 import E621connect
+from core.derpibooru import DerpibooruConnect
 from core.settings_bot import config, CustomChecks
 
 
@@ -13,6 +14,88 @@ class SearchType(enum.Enum):
     gif = "gif"
     png = "png"
     jpg = "jpg"
+
+
+class MyGroup(app_commands.Group):
+
+    @app_commands.command(name="safe", description="Get post safe from Derpibooru")
+    async def derpibooru_sfw(self, interaction: discord.Interaction, search: str):
+        derpibooruapi = DerpibooruConnect()
+        await interaction.response.send_message("Connect to derpibooru..")
+        msg = await interaction.original_response()
+        if search is not None:
+            search_s = search.split(" ")
+            if len(search_s) > 1:
+                search_tag = "+".join(search_s)
+            else:
+                search_tag = search_s[0]
+
+        data = await derpibooruapi.get_safe_post(tag=search_tag)
+        if data is None:
+            return await msg.edit(content="Nothing found for this tag :(")
+
+        image = data.get('view_url')
+        id_image = data.get('id')
+
+        file_exc = ["webm", "mp4", "gif", "swf"]
+        if image.split('.')[-1] in file_exc:
+            embed = discord.Embed(
+                title="Derpibooru posting",
+                description=f"Derpibooru image found for **`{search}`** 🔞\n"
+                            f"**Post URL:** [Link](https://derpibooru.org/images/{id_image}) **Video URL:** [Link]({image})",
+                color=discord.Colour.dark_purple()
+            )
+            embed.set_image(url=image)
+            return await msg.edit(content="", embed=embed)
+
+        embed2 = discord.Embed(
+            title="Derpibooru posting",
+            description=f"Derpibooru image found for **`{search}`** 🔞\n"
+                        f"**Post URL:** [Link](https://derpibooru.org/images/{id_image})",
+            color=discord.Color.dark_purple()
+        )
+        embed2.set_image(url=image)
+        await msg.edit(content="", embed=embed2)
+
+    @app_commands.command(name="explicit", description="Get post explicit from Derpibooru")
+    @app_commands.check(CustomChecks.app_is_nsfw)
+    async def derpibooru_nsfw(self, interaction: discord.Interaction, search: str):
+        derpibooruapi = DerpibooruConnect()
+        await interaction.response.send_message("Connect to derpibooru..")
+        msg = await interaction.original_response()
+        if search is not None:
+            search_s = search.split(" ")
+            if len(search_s) > 1:
+                search_tag = "%2C+".join(search_s)
+            else:
+                search_tag = search_s[0]
+
+        data = await derpibooruapi.get_explicit_post(tag=search_tag)
+        if data is None:
+            return await msg.edit(content="Nothing found for this tag :(")
+
+        image = data.get('view_url')
+        id_image = data.get('id')
+
+        file_exc = ["webm", "mp4", "gif", "swf"]
+        if image.split('.')[-1] in file_exc:
+            embed = discord.Embed(
+                title="Derpibooru posting",
+                description=f"Derpibooru image found for **`{search}`** 🔞\n"
+                            f"**Post URL:** [Link](https://derpibooru.org/images/{id_image}) **Video URL:** [Link]({image})",
+                color=discord.Colour.dark_purple()
+            )
+            embed.set_image(url=image)
+            return await msg.edit(content="", embed=embed)
+
+        embed2 = discord.Embed(
+            title="Derpibooru posting",
+            description=f"Derpibooru image found for **`{search}`** 🔞\n"
+                        f"**Post URL:** [Link](https://derpibooru.org/images/{id_image})",
+            color=discord.Color.dark_purple()
+        )
+        embed2.set_image(url=image)
+        await msg.edit(content="", embed=embed2)
 
 
 class NsfwCommand(commands.Cog):
@@ -43,10 +126,10 @@ class NsfwCommand(commands.Cog):
 
             image = data['file']['url']
             sample = data['sample']['url']
-            id_post = data['id']
+            id_post = data.get('id')
             score_up = data['score']['up']
             score_down = data['score']['down']
-            rating = data['rating']
+            rating = data.get('rating')
 
             file_ext = ["webm", "mp4", "gif", "swf"]
             if image.split('.')[-1] in file_ext:
@@ -84,10 +167,10 @@ class NsfwCommand(commands.Cog):
 
             image = data['file']['url']
             sample = data['sample']['url']
-            id_post = data['id']
+            id_post = data.get('id')
             score_up = data['score']['up']
             score_down = data['score']['down']
-            rating = data['rating']
+            rating = data.get('rating')
 
             file_ext = ["webm", "mp4", "gif", "swf"]
             if image.split('.')[-1] in file_ext:
@@ -116,6 +199,7 @@ class NsfwCommand(commands.Cog):
 
 async def setup(bot: commands.Bot):
     settings = config()
+    bot.tree.add_command(MyGroup(name="derpibooru"))
     await bot.add_cog(NsfwCommand(bot), guilds=[discord.Object(id=settings['main_guild'])])
 
 

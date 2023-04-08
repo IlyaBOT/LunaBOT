@@ -22,13 +22,13 @@ class DiscordClient(commands.Bot):
             owner_id=settings['is_owner'],
             intents=intents)
 
-    #async def setup_bot(self): 
-        #if not self.guild_settings.get_all_guild():
-        #    pass
-        #     for guild in self.guilds:
-        #         self.guild_settings.setup_guild(guild_id=guild.id)
-        #
-        #     self.log.info("Setup guild database done!")
+    async def setup_bot(self): 
+        init_bot_db()
+        if not self.guild_settings.get_all_guild():
+            for guild in self.guilds:
+                self.guild_settings.setup_guild(guild_id=guild.id)
+        
+            self.log.info("Setup guild database done!")
 
     @tasks.loop(seconds=60.0)
     async def status(self):
@@ -49,6 +49,7 @@ class DiscordClient(commands.Bot):
         for extend in settings['extension']:
             await self.load_extension(extend)
             self.log.info(f"Load - {extend}")
+        self.tree.copy_global_to(guild=discord.Object(id=settings["main_guild"]))
         await self.tree.sync(guild=discord.Object(id=settings["main_guild"]))
         self.log.info(f"Synced slash commands for {self.user}")
 
@@ -62,8 +63,7 @@ class DiscordClient(commands.Bot):
             await message.add_reaction(row[2])
     
     async def on_ready(self):
-        init_bot_db()
-        #await self.setup_bot()
+        await self.setup_bot()
         print(f"Буп!\nВы вошли как {self.user}")
         self.status.start()
         self.remove_command("help")

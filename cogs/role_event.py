@@ -36,12 +36,12 @@ class RoleEvent(commands.Cog):
         try:
             role = utils.get(message.guild.roles, id=data_db[0])
             await member.add_roles(role)
-            self.log.info(f"Пользователю {member.name} была выдана роль: {role.name}")
+            self.log.info(f"User {member.name} role was given: {role.name}")
         except KeyError as e:
-            self.log.error("[ОШИБКА] Ошибка ключа, не найдена роль для: " + e)
+            self.log.error("Key error, role not found for: " + e)
         except AttributeError as e:
-            self.log.error(f"Атрибут роли не найден, похоже, что его больше нет на сервере, или он был удален:\n {e}")
-            self.log.warning("Настройки этой роли будут удалены из базы данных.")
+            self.log.error(f"Role attribute not found, looks like it is no longer on the server, or has been removed:\n {e}")
+            self.log.warning("The settings for this role will be removed from the database.")
             await sleep(10.0)
             _ = self.role_db.db_role_delete(role_id=data_db[0])
             await message.remove_reaction(payload.emoji, member=self.user)
@@ -73,12 +73,12 @@ class RoleEvent(commands.Cog):
         try:
             role = utils.get(message.guild.roles, id=data_db[0])
             await member.remove_roles(role)
-            self.log.info(f"У пользователя {member.name} была удалена роль: {role.name}")
+            self.log.info(f"User {member.name} role has been removed: {role.name}")
         except KeyError as e:
-            self.log.error("Ошибка ключа, не найдена роль для: " + e)
+            self.log.error("Key error, role not found for: " + e)
         except AttributeError as e:
-            self.log.error(f"Атрибут роли не найден, похоже, что его больше нет на сервере, или он был удален:\n {e}")
-            self.log.warning("Настройки этой роли будут удалены из базы данных через 10 секунд.")
+            self.log.error(f"Role attribute not found, looks like it is no longer on the server or has been removed\n {e}")
+            self.log.warning("The settings for this role will be removed from the database in 10 seconds.")
             await sleep(10.0)
             _ = self.role_db.db_role_delete(role_id=data_db[0])
             await message.clear_reaction(payload.emoji)

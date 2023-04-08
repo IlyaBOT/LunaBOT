@@ -39,12 +39,12 @@ def init_bot_db(conn):
                 private_voice BOOLEAN DEFAULT (FALSE)
                 )""")
     # Server settings
-    # c.execute("""CREATE TABLE IF NOT EXISTS bot_guild_settings (
-    #             id INTEGER PRIMARY KEY,
-    #             guild_id INTEGER NOT NULL,
-    #             lang_bot TEXT DEFAULT us_en NOT NULL,
-    #             music_channel_only BOOLEAN DEFAULT (FALSE) NOT NULL,
-    #             music_channel INTEGER)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS bot_guild_settings (
+                id INTEGER PRIMARY KEY,
+                guild_id INTEGER NOT NULL,
+                lang_bot TEXT DEFAULT en_US NOT NULL,
+                music_channel_only BOOLEAN DEFAULT (FALSE) NOT NULL,
+                music_channel INTEGER)""")
     conn.commit()
     log.info("Database init")
 
@@ -231,3 +231,52 @@ class GuildSettings:
         c.execute("SELECT guild_id FROM bot_guild_settings")
         res = c.fetchall()
         return res
+    
+    @db_connect
+    def get_lang(self, conn, guild_id: int):
+        c = conn.cursor()
+        c.execute("SELECT lang_bot FROM bot_guild_settings WHERE guild_id = ?", (guild_id, ))
+        try:
+            (res, ) = c.fetchone()
+            return res
+        except TypeError:
+            return None
+
+    @db_connect
+    def update_lang(self, conn, guild_id: int, lang: str):
+        c = conn.cursor()
+        c.execute("UPDATE bot_guild_settings SET lang_bot = ? WHERE guild_id = ?", (lang, guild_id))
+        conn.commit()
+
+    @db_connect
+    def music_channel_update(self, conn, guild_id: int, channel_id: int):
+        c = conn.cursor()
+        c.execute("UPDATE bot_guild_settings SET music_channel = ? WHERE guild_id = ?", (channel_id, guild_id))
+        conn.commit()
+
+    @db_connect
+    def music_channel_selector(self, conn, guild_id: int):
+        c = conn.cursor()
+        c.execute("SELECT music_channel FROM bot_guild_settings WHERE guild_id = ?", (guild_id, ))
+        try:
+            (res, ) = c.fetchone()
+            return res
+        except TypeError:
+            return None
+        
+    @db_connect
+    def update_music_channel_only(self, conn, guild_id: int, bool: bool):
+        c = conn.cursor()
+        c.execute("UPDATE bot_guild_settings SET music_channel_only = ? WHERE guild_id = ?", (bool, guild_id))
+        conn.commit()
+
+    @db_connect
+    def select_music_channel_only(self, conn, guild_id: int):
+        c = conn.cursor()
+        c.execute("SELECT music_channel_only FROM bot_guild_settings WHERE guild_id = ?", (guild_id, ))
+        try:
+            (res, ) = c.fetchone()
+            return res
+        except TypeError:
+            return None
+    
